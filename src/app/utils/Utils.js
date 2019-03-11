@@ -1,3 +1,5 @@
+import translate from './translations/Translations';
+
 export function createMediaItem(song) {
   // eslint-disable-next-line no-param-reassign
   song.container = { id: song.id };
@@ -21,15 +23,22 @@ export function getTime(ms) {
 }
 
 export function humanifyMillis(duration) {
-  const minutes = parseInt((duration / (1000 * 60)) % 60, 10);
-  const hours = parseInt((duration / (1000 * 60 * 60)) % 24, 10);
+  const musickitDuration = MusicKit.formattedMilliseconds(duration);
 
-  let humanReadable = `${minutes} minute${minutes === 1 ? 's' : ''}`;
-  if (hours > 0) {
-    humanReadable = `${hours} hour${hours === 1 ? 's' : ''}, ${humanReadable}`;
-  }
+  const hourFormatted = musickitDuration.hours === 1 ? translate.hour : translate.hours;
+  const hours = musickitDuration.hours === 0 ? '' : `${musickitDuration.hours} ${hourFormatted}`;
+  const minuteFormatted = musickitDuration.minutes === 1 ? translate.minute : translate.minutes;
+  const minutes =
+    musickitDuration.minutes === 0 ? '' : `${musickitDuration.minutes} ${minuteFormatted}`;
+  const comma = musickitDuration.hours === 0 || musickitDuration.minutes === 0 ? '' : `, `;
 
-  return humanReadable;
+  return `${hours}${comma}${minutes}`;
+}
+
+export function humanifyTrackNumbers(trackNumber) {
+  const songs = trackNumber === 1 ? translate.song : translate.songs;
+
+  return `${trackNumber} ${songs}`;
 }
 
 export const RepeatModeNone = 0;
@@ -40,3 +49,26 @@ export const ShuffleModeOff = 0;
 export const ShuffleModeSongs = 1;
 
 export const API_URL = 'https://api.music.apple.com';
+
+export const getRatingUrl = (type, id) => {
+  const baseUrl = `${API_URL}/v1/me/ratings/`;
+  const endpoints = {
+    library: {
+      song: 'library-songs',
+      playlist: 'library-playlists',
+      album: 'library-playlists',
+    },
+    catalog: {
+      song: 'songs',
+      playlist: 'playlists',
+      album: 'albums',
+    },
+  };
+
+  const choice = isNaN(id) ? endpoints.library : endpoints.catalog;
+  if (!(type in choice)) {
+    return false;
+  }
+
+  return `${baseUrl}${choice[type]}/${id}`;
+};

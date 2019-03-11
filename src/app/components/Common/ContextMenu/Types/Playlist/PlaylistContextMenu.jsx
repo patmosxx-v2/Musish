@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { artworkForMediaItem } from '../../../../../utils/Utils';
 import classes from './PlaylistContextMenu.scss';
-import { playPlaylist } from '../../../../../services/MusicPlayerApi';
+import { playPlaylist, playNext, playLater } from '../../../../../services/MusicPlayerApi';
 import ModalContext from '../../../Modal/ModalContext';
 import PlaylistPanel from '../../../PlaylistPanel/PlaylistPanel';
-import { addToLibrary } from '../../../../../services/MusicApi';
+import { addPlaylistToPlaylist, addToLibrary } from '../../../../../services/MusicApi';
+import PlaylistSelector from '../../../PlaylistSelector/PlaylistSelector';
+import translate from '../../../../../utils/translations/Translations';
 
 function PlaylistContextMenu({ playlist }) {
   const { attributes } = playlist;
@@ -30,26 +32,51 @@ function PlaylistContextMenu({ playlist }) {
 
       <MenuItem divider />
 
-      <MenuItem onClick={() => playPlaylist(playlist, 0)}>Play</MenuItem>
+      <MenuItem onClick={() => playPlaylist(playlist, 0)}>{translate.play}</MenuItem>
+      <MenuItem onClick={() => playNext(playlist)}>{translate.playNext}</MenuItem>
+      <MenuItem onClick={() => playLater(playlist)}>{translate.playLater}</MenuItem>
 
       <MenuItem divider />
 
       <ModalContext.Consumer>
         {({ push }) => (
           <MenuItem onClick={() => push(<PlaylistPanel playlist={playlist} />)}>
-            Open Playlist
+            {translate.openPlaylist}
           </MenuItem>
         )}
       </ModalContext.Consumer>
+
       {!inLibrary && (
         <>
           <MenuItem divider />
 
           <MenuItem onClick={() => addToLibrary('playlists', [playlist.id])}>
-            Add to library
+            {translate.addToLibrary}
           </MenuItem>
         </>
       )}
+
+      <ModalContext.Consumer>
+        {({ push, pop }) => (
+          <MenuItem
+            onClick={() =>
+              push(
+                <PlaylistSelector
+                  onClick={async targetPlaylist => {
+                    await addPlaylistToPlaylist(targetPlaylist.id, playlist.id);
+                    pop();
+                  }}
+                />,
+                {
+                  width: 'auto',
+                }
+              )
+            }
+          >
+            {translate.addToPlaylist}
+          </MenuItem>
+        )}
+      </ModalContext.Consumer>
     </>
   );
 }

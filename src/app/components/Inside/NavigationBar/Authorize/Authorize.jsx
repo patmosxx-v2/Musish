@@ -4,6 +4,7 @@ import classes from './Authorize.scss';
 import withMK from '../../../../hoc/withMK';
 import AuthorizeContext from './AuthorizeContext';
 import withContext from '../../../../hoc/withContext';
+import translate from '../../../../utils/translations/Translations';
 
 class Authorize extends Component {
   constructor(props) {
@@ -19,13 +20,14 @@ class Authorize extends Component {
 
   async login() {
     await this.props.mk.instance.authorize();
+    window.location.reload();
   }
 
   render() {
     const button = this.props.authorized ? (
-      <span onClick={this.logout}>Logout</span>
+      <span onClick={this.logout}>{translate.logout}</span>
     ) : (
-      <span onClick={this.login}>Login</span>
+      <span onClick={this.login}>{translate.login}</span>
     );
 
     return <div className={classes.authorizeWrapper}>{button}</div>;

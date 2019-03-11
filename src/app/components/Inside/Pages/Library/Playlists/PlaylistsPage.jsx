@@ -7,6 +7,7 @@ import classes from './PlaylistsPage.scss';
 import PageTitle from '../../../../Common/PageTitle/PageTitle';
 import PageContent from '../../../../Common/PageContent/PageContent';
 import InfiniteLoader from '../../../../Common/InfiniteLoader/InfiniteLoader';
+import translate from '../../../../../utils/translations/Translations';
 
 export default class PlaylistsPage extends React.Component {
   constructor(props) {
@@ -29,7 +30,7 @@ export default class PlaylistsPage extends React.Component {
 
   static renderItems({ items }) {
     const playlists = items.map(playlist => (
-      <PlaylistItem key={playlist.id} playlist={playlist} size={170} />
+      <PlaylistItem key={playlist.id} playlist={playlist} size={150} />
     ));
 
     return <div className={classes.playlistsGrid}>{playlists}</div>;
@@ -42,7 +43,7 @@ export default class PlaylistsPage extends React.Component {
   render() {
     return (
       <PageContent innerRef={this.ref}>
-        <PageTitle title={'Playlists'} context={'My Library'} />
+        <PageTitle title={translate.playlists} context={translate.myLibrary} />
         <InfiniteLoader
           scrollElement={this.ref}
           load={PlaylistsPage.load}

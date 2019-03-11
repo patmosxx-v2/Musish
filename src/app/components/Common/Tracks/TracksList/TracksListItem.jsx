@@ -10,6 +10,7 @@ import DragDropType from '../../../../utils/Constants/DragDropType';
 import ContextMenuTrigger from '../../ContextMenu/ContextMenuTrigger';
 import TrackContextMenu from '../../ContextMenu/Types/Track/TrackContextMenu';
 import { isTrackPlaying } from '../../../../services/MusicPlayerApi';
+import translate from '../../../../utils/translations/Translations';
 
 class TracksListItem extends React.Component {
   constructor(props) {
@@ -47,7 +48,7 @@ class TracksListItem extends React.Component {
             <div className={classes.trackBacker} />
             <TrackDecoration track={track} showAlbum={showAlbum} />
             <div className={classes.trackInfo}>
-              <span className={classes.trackTitle}>{'Track not available'}</span>
+              <span className={classes.trackTitle}>{translate.trackNotAvailable}</span>
             </div>
           </div>
         </div>
@@ -127,10 +128,10 @@ TracksListItem.propTypes = {
   style: PropTypes.object,
   showArtist: PropTypes.bool.isRequired,
   showAlbum: PropTypes.bool.isRequired,
-  connectDragSource: PropTypes.func.isRequired,
-  isOver: PropTypes.bool,
   playTrack: PropTypes.func.isRequired,
   className: PropTypes.any,
+  connectDragSource: PropTypes.func.isRequired,
+  isOver: PropTypes.bool,
 };
 
 TracksListItem.defaultProps = {

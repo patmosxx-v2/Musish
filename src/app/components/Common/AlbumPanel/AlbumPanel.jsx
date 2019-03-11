@@ -3,13 +3,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link, Route, withRouter } from 'react-router-dom';
 import classes from './AlbumPanel.scss';
-import { artworkForMediaItem, humanifyMillis } from '../../../utils/Utils';
+import { artworkForMediaItem, humanifyMillis, humanifyTrackNumbers } from '../../../utils/Utils';
 import TracksList from '../Tracks/TracksList/TracksList';
 import Loader from '../Loader/Loader';
 import * as MusicPlayerApi from '../../../services/MusicPlayerApi';
 import * as MusicApi from '../../../services/MusicApi';
 import withMK from '../../../hoc/withMK';
 import ModalContext from '../Modal/ModalContext';
+import translate from '../../../utils/translations/Translations';
 
 class AlbumPanel extends React.Component {
   constructor(props) {
@@ -119,7 +120,7 @@ class AlbumPanel extends React.Component {
     const artistName = artistId ? (
       <Link to={`/artist/${artistId}`}>{album.attributes.artistName}</Link>
     ) : (
-      <span className={classes.subtitle}>{album.attributes.artistName}</span>
+      album.attributes.artistName
     );
 
     return (
@@ -131,15 +132,15 @@ class AlbumPanel extends React.Component {
           <div className={classes.playActions}>
             <button type={'button'} onClick={this.playAlbum} className={classes.button}>
               <i className={`${classes.icon} fas fa-play`} />
-              Play
+              {translate.play}
             </button>
             <button type={'button'} onClick={this.shufflePlayAlbum} className={classes.button}>
               <i className={`${classes.icon} fas fa-random`} />
-              Shuffle
+              {translate.shuffle}
             </button>
           </div>
           <span className={classes.albumRuntimeDescription}>
-            {`${album.attributes.trackCount} songs, ${runtime}`}
+            {`${humanifyTrackNumbers(album.attributes.trackCount)}, ${runtime}`}
           </span>
         </div>
 
@@ -149,7 +150,8 @@ class AlbumPanel extends React.Component {
             {explicit}
           </span>
 
-          {artistName}
+          <span className={classes.subtitle}>{artistName}</span>
+
           <TracksList
             scrollElement={this.ref}
             scrollElementModifier={e => e && e.parentElement}
@@ -179,7 +181,7 @@ class AlbumPanel extends React.Component {
                           );
                         }}
                       >
-                        Show complete album
+                        {translate.showCompleteAlbum}
                       </span>
                     )}
                   </Route>

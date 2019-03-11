@@ -6,6 +6,7 @@ import PageTitle from '../../../../Common/PageTitle/PageTitle';
 import PageContent from '../../../../Common/PageContent/PageContent';
 import AlbumItem from '../../../../Common/AlbumItem/AlbumItem';
 import backend from '../../../../../services/Backend';
+import translate from '../../../../../utils/translations/Translations';
 
 class ArtistPage extends React.Component {
   constructor(props) {
@@ -25,9 +26,9 @@ class ArtistPage extends React.Component {
 
     let artist;
     if (isCatalog) {
-      artist = await music.api.artist(id, { include: 'albums' });
+      artist = await music.api.artist(id);
     } else {
-      artist = await music.api.library.artist(id, { include: 'albums' });
+      artist = await music.api.library.artist(id);
     }
 
     this.setState({
@@ -35,12 +36,32 @@ class ArtistPage extends React.Component {
     });
   }
 
+  async fetchAlbums() {
+    const music = MusicKit.getInstance();
+
+    const { id } = this.props.match.params;
+    const isCatalog = /^\d+$/.test(id);
+
+    let albums;
+    if (isCatalog) {
+      albums = await music.api.artist(id, { include: 'albums' });
+    } else {
+      albums = await music.api.library.artist(id, { include: 'albums' });
+    }
+
+    this.setState({
+      albums,
+    });
+  }
+
   async fetchGeniusData() {
     const { id } = this.props.match.params;
+
     const isCatalog = /^\d+$/.test(id);
     if (!isCatalog) {
       return;
     }
+
     const { data } = await backend.get(`/genius/artist?artistId=${id}`);
     data.plainDescription = ArtistPage.flattenDesc(data.description.dom.children);
 
@@ -72,18 +93,20 @@ class ArtistPage extends React.Component {
 
   componentDidMount() {
     this.fetchArtist();
+    this.fetchAlbums();
     this.fetchGeniusData();
   }
 
   componentDidUpdate() {
     if (this.state.artist && this.state.artist.id !== this.props.match.params.id) {
       this.fetchArtist();
+      this.fetchAlbums();
       this.fetchGeniusData();
     }
   }
 
   render() {
-    const { artist, geniusData } = this.state;
+    const { artist, albums, geniusData } = this.state;
 
     const headerStyles = {
       background: geniusData ? `url(${geniusData.header_image_url})` : '#f2f2f2',
@@ -98,7 +121,7 @@ class ArtistPage extends React.Component {
           <div className={classes.artistHeader} style={headerStyles}>
             <a href={'https://genius.com/'} target={'_blank'}>
               <div className={classes.geniusCredit}>
-                <span>Data provided by Genius</span>
+                <span>{translate.dataProvidedByGenius}</span>
               </div>
             </a>
             <div className={classes.artistHeaderContainer}>
@@ -106,13 +129,14 @@ class ArtistPage extends React.Component {
             </div>
           </div>
         )}
+
         <PageTitle title={artist ? artist.attributes.name : '...'} context={'Apple Music'} />
         {geniusData && geniusData.plainDescription}
-        <h3>Albums</h3>
+        <h3>{translate.albums}</h3>
 
-        {artist && (
+        {albums && (
           <div className={classes.albumsGrid}>
-            {artist.relationships.albums.data.map(album => (
+            {albums.map(album => (
               <AlbumItem key={album.id} album={album} size={120} />
             ))}
           </div>
